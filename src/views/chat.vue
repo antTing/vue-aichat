@@ -76,8 +76,8 @@
           v-model="inputVal"
           type="textarea"
           :autosize="{
-            minRows: 2,
-            maxRows: 5,
+            minRows: 5,
+            maxRows: 10,
           }"
           resize="none"
           style="max-width: 100%"
