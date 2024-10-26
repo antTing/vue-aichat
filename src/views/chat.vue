@@ -163,8 +163,10 @@ const Keydown = ($event: Event) => {
 
 const init = async () => {
   const res = await listModels()
-  modelList.value = res.data
-  if (modelList.value.length) model.value = modelList.value[0].id
+  if (!!res.data?.length) {
+    modelList.value = res.data
+    model.value = modelList.value[0].id
+  }
 }
 init()
 </script>
