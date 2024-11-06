@@ -57,7 +57,7 @@
           >
             <span
               v-if="item.role === 'user'"
-              class="whitespace-pre-wrap w-full break-words"
+              class="whitespace-pre-wrap max-w-full break-words"
               :class="item.role === 'user' ? 'bg-[#f0f0f0] p-2 rounded' : ''"
             >
               {{ item.content }}
