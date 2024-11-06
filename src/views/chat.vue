@@ -57,10 +57,11 @@
           >
             <span
               v-if="item.role === 'user'"
-              v-html="item.content"
-              class="whitespace-pre-wrap"
+              class="whitespace-pre-wrap max-w-full break-words"
               :class="item.role === 'user' ? 'bg-[#f0f0f0] p-2 rounded' : ''"
-            ></span>
+            >
+              {{ item.content }}
+            </span>
             <MdPreview
               v-else
               editorId="preview-only"
