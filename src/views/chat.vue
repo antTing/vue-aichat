@@ -74,7 +74,7 @@
     <div class="mb-5 mt-2">
       <div class="w-[60%] m-[0_auto] relative">
         <el-input
-          v-model="inputVal"
+          v-model.trim="inputVal"
           type="textarea"
           :autosize="{
             minRows: 2,
@@ -155,6 +155,7 @@ const send = async () => {
   }
 }
 const Keydown = ($event: Event) => {
+  if (btnDisabled.value) return
   const event = $event as KeyboardEvent
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
