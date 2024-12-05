@@ -74,7 +74,7 @@
     <div class="mb-5 mt-2">
       <div class="w-[60%] m-[0_auto] relative">
         <el-input
-          v-model.trim="inputVal"
+          v-model="inputVal"
           type="textarea"
           :autosize="{
             minRows: 2,
