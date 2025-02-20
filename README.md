@@ -1,14 +1,10 @@
 # vue-aichat
 
-This template should help get you started developing with Vue 3 in Vite.
+vue3仿 chatgpt/deepseek web，兼容deepseek/OpenAI API接口风格的模型。在根目录下手动添加 .env 文件，配置API Key。（如下所示）
 
-## Recommended IDE Setup
+## Project Description
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+A chat application based on Vue 3, inspired by the design of ChatGPT and DeepSeek. It supports the use of OpenAI API models and is compatible with the API interface style of DeepSeek. The project is currently in the early stages of development and is still under active maintenance.
 
 ## Customize configuration
 
