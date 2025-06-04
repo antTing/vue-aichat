@@ -1,4 +1,4 @@
-import { toValue } from 'vue'
+import { ref, onBeforeUnmount, toValue } from 'vue'
 import type { Ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { chatCompletion, streamChatCompletion } from '@/api/chatApi'
@@ -18,6 +18,7 @@ export const useMakeAutosuggestion = (
   scrollFn?: () => void,
 ) => {
   const chatStore = useChatStore()
+  const abortController = ref<AbortController | null>(null)
   // 组装参数
   const makeRequestData = (
     model: string,
@@ -59,7 +60,15 @@ export const useMakeAutosuggestion = (
     if (!requestData) return
     try {
       if (modelOptions.value.stream) {
-        const response = await streamChatCompletion(requestData)
+        abortController.value = new AbortController()
+        const signal = abortController.value.signal
+        const response = await streamChatCompletion(signal, requestData)
+        if (!response.ok) {
+          throw new Error(
+            `API请求失败: ${response.status} ${response.statusText}`,
+          )
+        }
+        chatStore.isConnected = true
         await handleStreamResponse(response)
       } else {
         const response = await chatCompletion(requestData)
@@ -70,12 +79,32 @@ export const useMakeAutosuggestion = (
         return response
       }
     } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('请求被取消')
+        return
+      }
       console.error('Error during chatCompletion:', error)
       ElMessage.error('生成建议失败')
+    } finally {
+      chatStore.isConnected = false
     }
   }
 
+  const cancelRequest = () => {
+    if (!chatStore.isConnected) return
+    chatStore.isConnected = false
+    if (abortController.value) {
+      abortController.value.abort()
+      abortController.value = null
+    }
+  }
+
+  onBeforeUnmount(() => {
+    cancelRequest()
+  })
+
   return {
     makeAutosuggestion,
+    cancelRequest,
   }
 }

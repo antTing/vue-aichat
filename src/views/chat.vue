@@ -86,10 +86,9 @@
         />
         <el-button
           type="primary"
-          :icon="Position"
-          :disabled="btnDisabled"
+          :icon="isConnected ? VideoPause : Position"
           class="absolute right-6 bottom-2"
-          @click="send"
+          @click="handleClick"
         />
       </div>
     </div>
@@ -108,6 +107,7 @@ import {
   Position,
   UserFilled,
   Avatar,
+  VideoPause,
 } from '@element-plus/icons-vue'
 import { MdPreview } from 'md-editor-v3'
 import 'md-editor-v3/lib/preview.css'
@@ -117,7 +117,7 @@ import { useChatStore } from '@/stores/chat'
 
 const model = ref<string>('deepseek-chat')
 const modelList = ref<Model[]>([])
-const { messages } = storeToRefs(useChatStore())
+const { messages, isConnected } = storeToRefs(useChatStore())
 const { clearMessages } = useChatStore()
 const handleCommand = (command: string | number | object) => {
   clearMessages()
@@ -135,7 +135,19 @@ const scrollFn = () => {
     scrollId?.scrollIntoView({ block: 'end' })
   }, 0)
 }
-const { makeAutosuggestion } = useMakeAutosuggestion(modelOptions, scrollFn)
+
+const { makeAutosuggestion, cancelRequest } = useMakeAutosuggestion(
+  modelOptions,
+  scrollFn,
+)
+
+const handleClick = () => {
+  if (isConnected.value) {
+    cancelRequest()
+  } else {
+    send()
+  }
+}
 const send = async () => {
   if (inputVal.value.trim() === '') {
     return
@@ -159,6 +171,7 @@ const Keydown = ($event: Event) => {
   const event = $event as KeyboardEvent
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
+    if (inputVal.value.trim() === '' || isConnected.value) return
     send()
   }
 }

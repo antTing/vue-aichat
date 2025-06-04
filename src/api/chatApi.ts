@@ -77,10 +77,12 @@ export const chatCompletion = (
 }
 // 流式对话补全
 export const streamChatCompletion = (
+  signal: AbortSignal,
   data: CompletionRequest,
 ): Promise<Response> => {
   return fetcher('/chat/completions', 'POST', data, {
     headers: { Accept: 'application/json' },
+    signal,
   })
 }
 
