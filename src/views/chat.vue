@@ -62,6 +62,11 @@
             >
               {{ item.content }}
             </span>
+            <div v-else-if="!item.content" class="loading-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
             <MdPreview
               v-else
               editorId="preview-only"
@@ -197,4 +202,39 @@ init()
 .el-textarea :deep(.el-textarea__inner) {
   padding-right: 90px;
 }
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #63ff40, #57eeec);
+  animation: loading-dots-animation 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loading-dots-animation {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
 </style>
