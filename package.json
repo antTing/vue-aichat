@@ -16,7 +16,7 @@
     "@element-plus/icons-vue": "^2.3.1",
     "axios": "^1.7.7",
     "element-plus": "^2.8.6",
-    "md-editor-v3": "^4.21.1",
+    "md-editor-v3": "^5.7.1",
     "pinia": "^2.2.4",
     "scss": "^0.2.4",
     "vue": "^3.5.12"

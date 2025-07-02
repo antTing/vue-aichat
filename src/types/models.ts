@@ -2,6 +2,7 @@ type Model = {
   id: string // 模型的标识符
   object: string // 模型的类型，固定为 "model"
   owned_by: string // 模型的所有者
+  name: string
 }
 
 interface Message {

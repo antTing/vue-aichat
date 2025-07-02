@@ -67,11 +67,10 @@
               <span></span>
               <span></span>
             </div>
-            <MdPreview
-              v-else
-              editorId="preview-only"
-              :modelValue="item.content"
-            />
+            <div v-else>
+              <MdPreview id="preview-only" :modelValue="item.content" />
+              <MdCatalog editorId="preview-only" :scrollElement="scrollElement" />
+            </div>
           </p>
         </div>
       </div>
@@ -119,6 +118,8 @@ import 'md-editor-v3/lib/preview.css'
 
 import { useMakeAutosuggestion } from '@/hooks/useMakeAutosuggestion'
 import { useChatStore } from '@/stores/chat'
+
+const scrollElement = document.documentElement;
 
 const model = ref<string>('deepseek-chat')
 const modelList = ref<Model[]>([])
