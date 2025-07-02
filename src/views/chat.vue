@@ -215,7 +215,7 @@ init()
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #63ff40, #57eeec);
+  background: linear-gradient(45deg, #4d9eff, #3b82f6, #2563eb, #1d4ed8);
   animation: loading-dots-animation 1.4s infinite ease-in-out;
 }
 
