@@ -1,35 +1,35 @@
 <template>
   <div class="h-full flex flex-col relative overflow-hidden">
+    <el-row
+      class="top-0 bg-[#fff] w-full h-[50px] z-10 justify-between items-center"
+      style="position: sticky"
+    >
+      <el-dropdown @command="handleCommand" :max-height="200">
+        <span
+          class="el-dropdown-link ml-4 text-lg font-semibold text-[#213547]"
+        >
+          {{ model }}
+          <el-icon class="el-icon--right">
+            <arrow-down />
+          </el-icon>
+        </span>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item
+              v-for="item in modelList"
+              :key="item.id"
+              :command="item.id"
+              >{{ item.id }}</el-dropdown-item
+            >
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+      <el-radio-group v-model="modelOptions.stream" size="small" class="mr-4">
+        <el-radio-button label="流式返回" :value="true" />
+        <el-radio-button label="非流式" :value="false" />
+      </el-radio-group>
+    </el-row>
     <div class="flex-1 overflow-y-auto relative">
-      <el-row
-        class="top-0 bg-[#fff] w-full h-[50px] z-10 justify-between items-center"
-        style="position: sticky"
-      >
-        <el-dropdown @command="handleCommand" :max-height="200">
-          <span
-            class="el-dropdown-link ml-4 text-lg font-semibold text-[#213547]"
-          >
-            {{ model }}
-            <el-icon class="el-icon--right">
-              <arrow-down />
-            </el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                v-for="item in modelList"
-                :key="item.id"
-                :command="item.id"
-                >{{ item.id }}</el-dropdown-item
-              >
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
-        <el-radio-group v-model="modelOptions.stream" size="small" class="mr-4">
-          <el-radio-button label="流式返回" :value="true" />
-          <el-radio-button label="非流式" :value="false" />
-        </el-radio-group>
-      </el-row>
       <div class="w-[60%] m-[0_auto]" id="scrollId">
         <div
           v-for="(item, index) in messages"
@@ -68,8 +68,8 @@
               <span></span>
             </div>
             <div v-else>
-              <MdPreview id="preview-only" :modelValue="item.content" />
-              <MdCatalog editorId="preview-only" :scrollElement="scrollElement" />
+              <MdPreview id="preview-only" :modelValue="item.content" :codeFoldable="false" />
+              <!-- <MdCatalog editorId="preview-only" scrollElement="#chatContainer" :scrollElementOffsetTop="50" /> -->
             </div>
           </p>
         </div>
@@ -119,7 +119,7 @@ import 'md-editor-v3/lib/preview.css'
 import { useMakeAutosuggestion } from '@/hooks/useMakeAutosuggestion'
 import { useChatStore } from '@/stores/chat'
 
-const scrollElement = document.documentElement;
+// const scrollElement = document.getElementById('chatContainer') as HTMLElement
 
 const model = ref<string>('deepseek-chat')
 const modelList = ref<Model[]>([])
