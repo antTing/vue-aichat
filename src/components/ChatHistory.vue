@@ -11,13 +11,14 @@
         清空
       </el-button>
     </div>
-    <div class="history-list">
+    <div v-if="sortedSessions.length === 0" class="history-empty">暂无历史</div>
+    <div v-else class="history-list">
       <div
         v-for="session in sortedSessions"
         :key="session.id"
         class="history-item"
         :class="{ active: currentSessionId === session.id }"
-        @click="loadSession(session.id)"
+        @click="openSession(session.id)"
       >
         <div class="item-header">
           <span class="item-title">{{ session.title }}</span>
@@ -43,36 +44,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
-import { historyStorage } from '@/utils/historyStorage'
+import { computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useChatStore } from '@/stores/chat'
 import { storeToRefs } from 'pinia'
 
-const { currentSessionId } = storeToRefs(useChatStore())
-const { loadSession, clearMessages } = useChatStore()
-
-const sessions = ref<ChatSession[]>([])
+const chatStore = useChatStore()
+const { currentSessionId, isConnected, sessions } = storeToRefs(chatStore)
 
 const sortedSessions = computed(() => {
   return [...sessions.value].sort((a, b) => b.updatedAt - a.updatedAt)
 })
 
-const loadSessions = () => {
-  sessions.value = historyStorage.getSessions()
+const openSession = (id: string) => {
+  if (isConnected.value) {
+    ElMessage.warning('请等待当前回复结束')
+    return
+  }
+  chatStore.loadSession(id)
 }
 
 const deleteSession = (id: string) => {
-  historyStorage.deleteSession(id)
-  if (currentSessionId.value === id) {
-    clearMessages()
+  if (isConnected.value && currentSessionId.value === id) {
+    ElMessage.warning('请等待当前回复结束')
+    return
   }
-  loadSessions()
+  chatStore.deleteSession(id)
 }
 
 const clearAll = () => {
-  historyStorage.clearSessions()
-  clearMessages()
-  loadSessions()
+  if (isConnected.value) {
+    ElMessage.warning('请等待当前回复结束')
+    return
+  }
+  chatStore.clearAllSessions()
 }
 
 const getPreview = (messages: Message[]) => {
@@ -85,17 +90,13 @@ const formatTime = (timestamp: number) => {
   const date = new Date(timestamp)
   const now = new Date()
   const diff = now.getTime() - timestamp
-  
+
   if (diff < 24 * 60 * 60 * 1000) {
     return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   } else {
     return date.toLocaleDateString('zh-CN')
   }
 }
-
-onMounted(() => {
-  loadSessions()
-})
 </script>
 
 <style scoped>
@@ -119,6 +120,13 @@ onMounted(() => {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
+}
+
+.history-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
 }
 
 .history-list {

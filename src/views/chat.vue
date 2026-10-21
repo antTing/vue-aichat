@@ -104,7 +104,7 @@
 
 <script setup lang="ts">
 import { listModels } from '@/api/chatApi'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import {
   ArrowDown,
@@ -123,11 +123,20 @@ import { useChatStore } from '@/stores/chat'
 
 const model = ref<string>('deepseek-chat')
 const modelList = ref<Model[]>([])
-const { messages, isConnected } = storeToRefs(useChatStore())
-const { clearMessages } = useChatStore()
+const chatStore = useChatStore()
+const { messages, isConnected, currentModel, currentSessionId } =
+  storeToRefs(chatStore)
+const { clearMessages, setModel } = chatStore
+
+watch(currentModel, value => {
+  if (value) model.value = value
+})
+
 const handleCommand = (command: string | number | object) => {
+  if (isConnected.value) return
   clearMessages()
   model.value = command as string
+  setModel(model.value)
 }
 
 const inputVal = ref<string>('')
@@ -184,9 +193,11 @@ const Keydown = ($event: Event) => {
 
 const init = async () => {
   const res = await listModels()
-  if (!!res.data?.length) {
-    modelList.value = res.data
+  if (!res.data?.length) return
+  modelList.value = res.data
+  if (!currentSessionId.value) {
     model.value = modelList.value[0].id
+    setModel(model.value)
   }
 }
 init()

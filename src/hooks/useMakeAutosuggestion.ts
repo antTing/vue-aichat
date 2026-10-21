@@ -28,6 +28,7 @@ export const useMakeAutosuggestion = (
       ElMessage.error('请选择模型')
       return null
     }
+    chatStore.setModel(model)
     chatStore.addMessage(message)
     scrollFn && scrollFn()
     return {
@@ -44,11 +45,18 @@ export const useMakeAutosuggestion = (
       chatStore.messages[chatStore.messages.length - 1].content +=
         choice.delta?.content ?? ''
     })
+    const current = chatStore.sessions.find(
+      session => session.id === chatStore.currentSessionId,
+    )
+    if (current) {
+      current.messages = chatStore.messages.map(item => ({ ...item }))
+    }
     scrollFn && scrollFn()
   }
   const beforeSend = () => {
     const message = { role: 'assistant', content: '' }
-    chatStore.addMessage(message)
+    // 流式增量只改内存，结束时再整段写入 localStorage
+    chatStore.addMessage(message, false)
   }
   const { handleStreamResponse } = useReceiveStreamData(
     handleProcessMessage,
@@ -87,6 +95,7 @@ export const useMakeAutosuggestion = (
       ElMessage.error('生成建议失败')
     } finally {
       chatStore.isConnected = false
+      chatStore.persistCurrentSession()
     }
   }
 

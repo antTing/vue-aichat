@@ -1,52 +1,52 @@
 export const useReceiveStreamData = (
-  handleProcessMessage: Function,
-  beforeSend?: Function,
+  handleProcessMessage: (json: any) => void,
+  beforeSend?: () => void,
 ) => {
-  async function handleStreamResponse(response: Response) {
-    const reader = response.body?.getReader()
-    const decoder = new TextDecoder('utf-8')
-    // 初始消息
-    beforeSend && beforeSend()
-    async function read() {
-      if (!reader) {
-        console.error('Reader is not available.')
-        return
-      }
-      const result: ReadableStreamReadResult<Uint8Array> = await reader.read()
-      const { done, value } = result
-      if (done) {
-        console.log('Connection closed')
-        return
-      }
-      const messageData = decoder.decode(value, { stream: true })
-      const messages = messageData.split('\n')
-      for (const msg of messages) {
-        if (!processMessage(msg)) {
-          return // 如果返回 false，则结束处理
-        }
-      }
-      await read() // 继续读取后续的数据
+  function processMessage(msg: string) {
+    const trimmed = msg.trim()
+    if (!trimmed || trimmed.startsWith(':')) return true
+
+    const jsonString = trimmed.startsWith('data:')
+      ? trimmed.slice(5).trim()
+      : trimmed
+    if (jsonString === '[DONE]') return false
+    if (!jsonString) return true
+
+    try {
+      handleProcessMessage(JSON.parse(jsonString))
+    } catch (error) {
+      console.error('Failed to parse message:', error)
     }
-    if (reader) {
-      await read()
-    }
+    return true
   }
 
-  function processMessage(msg: string) {
-    const jsonString = msg.replace(/^data: /, '').trim()
-    if (jsonString === '[DONE]') {
-      console.log('Stream completed')
-      return false // 表示结束处理
+  async function handleStreamResponse(response: Response) {
+    const reader = response.body?.getReader()
+    if (!reader) {
+      console.error('Reader is not available.')
+      return
     }
-    if (jsonString) {
-      try {
-        const json = JSON.parse(jsonString)
-        handleProcessMessage(json)
-      } catch (error) {
-        console.error('Failed to parse message:', error)
+
+    const decoder = new TextDecoder('utf-8')
+    beforeSend?.()
+    let buffer = ''
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        buffer += decoder.decode(value ?? new Uint8Array(), { stream: !done })
+        const lines = buffer.split('\n')
+        // 半行留到下一次 read，避免 chunk 切断 JSON
+        buffer = done ? '' : (lines.pop() ?? '')
+
+        for (const line of lines) {
+          if (!processMessage(line)) return
+        }
+        if (done) break
       }
+    } finally {
+      reader.releaseLock()
     }
-    return true // 表示继续处理
   }
 
   return { handleStreamResponse }

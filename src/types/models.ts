@@ -109,3 +109,12 @@ interface streamChoice {
     content: logprobs_content[]
   }
 }
+
+interface ChatSession {
+  id: string
+  title: string
+  model: string
+  messages: Message[]
+  createdAt: number
+  updatedAt: number
+}

@@ -1,5 +1,3 @@
-import type { ChatSession } from '@/types/models'
-
 const STORAGE_KEY = 'vue-aichat-history'
 const MAX_SESSIONS = 50
 
